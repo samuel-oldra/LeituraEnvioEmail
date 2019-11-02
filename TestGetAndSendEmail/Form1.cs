@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Mime;
 using System.Text;
 using System.Windows.Forms;
 
@@ -74,6 +75,19 @@ namespace TestGetAndSendEmail
 
                 foreach (Attachment anexo in mensagem.Attachments)
                     nova_mensagem.Attachments.Add(anexo);
+
+                // CONVERT AlternateView para Attachment
+                int av = 1;
+                foreach (AlternateView imagem in mensagem.AlternateViews)
+                {
+                    try
+                    {
+                        string file_name = av++.ToString() + '.' + imagem.ContentType.MediaType.Split('/')[1];
+                        Attachment att = new Attachment(imagem.ContentStream, file_name, MediaTypeNames.Application.Octet);
+                        nova_mensagem.Attachments.Add(att);
+                    }
+                    catch { }
+                }
 
                 client.Send(nova_mensagem);
             }
