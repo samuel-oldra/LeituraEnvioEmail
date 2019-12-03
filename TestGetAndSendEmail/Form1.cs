@@ -1,6 +1,7 @@
 ﻿using S22.Imap;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -13,11 +14,11 @@ namespace TestGetAndSendEmail
     {
         #region Private Fields
 
-        private string hostname = "xxx.embratelmail.com.br";
+        private string hostname = "exchange.embratelmail.com.br";
         private string password = "xxx";
-        private string port = "666";
-        private string portToSend = "111";
-        private string username = "xxx@gmail.com";
+        private string port = "993";
+        private string portToSend = "587";
+        private string username = "xxx@xxx.com";
 
         #endregion Private Fields
 
@@ -78,13 +79,21 @@ namespace TestGetAndSendEmail
 
                 // CONVERT AlternateView para Attachment
                 int av = 1;
-                foreach (AlternateView imagem in mensagem.AlternateViews)
+                foreach (AlternateView view in mensagem.AlternateViews)
                 {
                     try
                     {
-                        string file_name = av++.ToString() + '.' + imagem.ContentType.MediaType.Split('/')[1];
-                        Attachment att = new Attachment(imagem.ContentStream, file_name, MediaTypeNames.Application.Octet);
-                        nova_mensagem.Attachments.Add(att);
+                        if (view.ContentType.MediaType == "text/html")
+                        {
+                            using (StreamReader reader = new StreamReader(view.ContentStream))
+                                nova_mensagem.Body = reader.ReadToEnd();
+                        }
+                        else
+                        {
+                            string file_name = av++.ToString() + '.' + view.ContentType.MediaType.Split('/')[1];
+                            Attachment att = new Attachment(view.ContentStream, file_name, MediaTypeNames.Application.Octet);
+                            nova_mensagem.Attachments.Add(att);
+                        }
                     }
                     catch { }
                 }
