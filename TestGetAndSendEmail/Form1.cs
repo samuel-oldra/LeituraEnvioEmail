@@ -31,8 +31,6 @@ namespace TestGetAndSendEmail
 
         #endregion Public Constructors
 
-
-
         #region Private Methods
 
         private void btnRun_Click(object sender, EventArgs e)
